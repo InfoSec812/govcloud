@@ -1,6 +1,6 @@
 ## How it Works
 
-There is ansible inventory which identifies all components to deployed an OpenShift cluster on AWS/GoveCloud.
+There is ansible inventory which identifies all components to deployed an OpenShift cluster on AWS/GovCloud.
 
 Currently, the following components are included in this inventory:
 
