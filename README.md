@@ -3,11 +3,12 @@
 There is ansible inventory which identifies all components to deployed an OpenShift cluster on AWS/GovCloud.
 
 Currently, the following components are included in this inventory:
+* None yet
 
 ## Prerequisites
 
 * [Ansible](http://docs.ansible.com/ansible/latest/intro_installation.html)
-* [OpenShift CLI Tools](https://docs.openshift.com/container-platform/3.6/cli_reference/get_started_cli.html)
+* [OpenShift CLI Tools](https://docs.openshift.com/container-platform/3.7/cli_reference/get_started_cli.html)
 * Access to the AWS/GovCloud account
 
 ## Usage 
