@@ -31,9 +31,23 @@ printf "Enter number of application nodes to provision (default 4): "
 read AWS_APP_NODE_INSTANCE_COUNT
 printf "\n\n"
 
-printf "Enter number of cloud native storage nodes to provision (default 0, 3 or more required for resilience): "
-read AWS_CNS_NODE_INSTANCE_COUNT
-printf "\n\n"
+CNS_CONFIG_IS_VALID=0
+until [ ${CNS_CONFIG_IS_VALID} -eq 1 ]; do
+    printf "Enter number of cloud native storage nodes to provision (default 0, 3 or more required to work): "
+    read AWS_CNS_NODE_INSTANCE_COUNT
+    NUM_REGEX='^[0-9]*$'
+    if [[ $AWS_CNS_NODE_INSTANCE_COUNT =~ ${NUM_REGEX} ]]; then
+        if [[ $AWS_CNS_NODE_INSTANCE_COUNT -eq 0 ]]; then
+            CNS_CONFIG_IS_VALID=1
+        else if [[ $AWS_CNS_INSTANCE_COUNT -ge 3 ]]; then
+            CNS_CONFIG_IS_VALID=1
+        else
+            printf "'%s' is not a valid value. Count MUST be == 0 or >= 3" $AWS_CNS_INSTANCE_COUNT
+        fi
+    else
+        printf "'%s' is not a valid value. Value MUST be an integer and >=0" $AWS_CNS_INSTANCE_COUNT
+    fi
+done
 
 while [ "${AWS_ROUTE53_DOMAIN_NAME}X" == "X" ]; do
     printf "AWS ROUTE53 Domain Name for cluster: "
@@ -70,4 +84,11 @@ while [ "${RHSM_PASSWORD}X" == "X" ]; do
     read RHSM_PASSWORD
     printf "\n\n"
 done
+
+while [ "${OCP_DEPLOY_METRICS}X" == "X" ]; do
+    printf "Deploy metrics in the cluster (y/N): "
+    read deployMetricsAnswer
+done
+
+## TODO: Execute Ansible utility container with appropriate env variables
 
