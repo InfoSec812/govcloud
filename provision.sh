@@ -101,6 +101,19 @@ while [ "${OCP_DEPLOY_METRICS}X" == "X" ]; do
     read deployMetricsAnswer
 done
 
+
+if ! [[ -f environment ]]; then
+    printf "Would you like to save this config in the 'environment' file?"
+    read A
+
+fi
+
+while [[ "${AWS_SSH_PRIVATE_KEY_FILE}X" == "X" ]]; then
+    printf "Enter absolute or relative path to the AWS SSH key file (~/.ssh/id_rsa): "
+    read AWS_SSH_PRIVATE_KEY_FILE
+do
+
+
 ## Build the environment variables into a variable we can pass with Docker command to run
 ## the playbook/roles/inventory
 
@@ -111,8 +124,8 @@ for I in $(set | egrep "^(RH|AWS|OCP).*"); do
 done
 
 docker run -u `id -u` \
-      -v $HOME/.ssh/id_rsa:/opt/app-root/src/.ssh/id_rsa:Z \
-      -v $HOME/src/:/tmp/src:Z \
+      -v ${AWS_SSH_PRIVATE_KEY_FILE}:/opt/app-root/src/.ssh/id_rsa:Z \
+      -v ./:/tmp/src:Z \
       ${DOCKER_ENV} \
       -e INVENTORY_DIR=/tmp/src/casl-ansible/inventory/sample.aws.example.com.d/inventory \
       -e PLAYBOOK_FILE=/tmp/src/casl-ansible/playbooks/openshift/end-to-end.yml \
