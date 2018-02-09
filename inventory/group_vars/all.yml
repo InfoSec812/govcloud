@@ -8,12 +8,12 @@
 hosting_infrastructure: aws
 
 # Cluster Environment ID to uniquely identify the environment
-env_id: "<REPLACE WITH VALID ENV ID - i.e: env1>"
+env_id: "{{ lookup('env', 'OCP_UNIQUE_ENV_ID') }}"
 
 ## AWS Provisioning Variables
 # Amazon image name to use for instances.
 # Note that each AWS region may utilize a different AMI for the same image.
-aws_image_name: <REPLACE WITH VALID AMI>
+aws_image_name: "{{ lookup('env', 'AWS_AMI') }}"
 
 # AWS instance flavors (i.e.: instance sizes)
 master_flavor: m4.xlarge
@@ -23,24 +23,24 @@ cns_node_flavor: i3.xlarge
 
 # Number of master instances to deploy.
 # This is a non-HA sample nventory so don't change this value
-aws_num_masters: 1
+aws_num_masters: "{{ lookup('env', 'AWS_MASTER_NODE_INSTANCE_COUNT') | default('3') }}"
 
 # Number of instances to be used as infra nodes.
 # This is a non-HA sample inventory so don't change this value
-aws_num_infra_nodes: 1
+aws_num_infra_nodes: "{{ lookup('env', 'AWS_INFRA_NODE_INSTANCE_COUNT') | default('3') }}"
 
 # Number of instances to be used as compute/app nodes
-aws_num_app_nodes: 3
+aws_num_app_nodes: "{{ lookup('env', 'AWS_APP_NODE_INSTANCE_COUNT') | default('3') }}"
 
 # Number of instances to be used as CNS (Container Native Storage) nodes
-aws_num_cns_nodes: 0
+aws_num_cns_nodes: "{{ lookup('env', 'AWS_CNS_NODE_INSTANCE_COUNT') | default('3') }}"
 
 
 # DNS configurations
 # the 'dns_domain' will be used as the base domain for the deployment and has
 # to be a domain that is managed by Route53 within your AWS account
 # the 'dns_nameservers' is a list of DNS resolvers the cluster should use
-dns_domain: "<REPLACE WITH A VALID ROUTE53 DNS DOMAIN>"
+dns_domain: "{{ lookup('env', 'AWS_ROUTE53_DOMAIN_NAME') }}"
 dns_nameservers:
 - 8.8.8.8
 
@@ -80,12 +80,12 @@ dns_nameservers:
 aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
 aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
 
-aws_region: <REPLACE WITH VALID AWS REGION>
+aws_region: "{{ lookup('env', 'AWS_REGION') | default('us-east-1') }}"
 
 # If aws_create_vpc is 'true', aws_vpc_id and aws_subnet_id variables will be ignored
 aws_create_vpc: true
-aws_vpc_id: <REPLACE WITH VALID VPC ID>
-aws_subnet_id: <REPLACE WITH VALID SUBNET ID>
+aws_vpc_id: "{{ lookup('env','AWS_VPC_ID') }}"
+aws_subnet_id: "{{ loookup('env', 'AWS_VPC_SUBNET_ID') }}"
 
 # use the "-e" option to set "aws_key_name"
 #aws_key_name: my-ssh-region-key
@@ -134,8 +134,8 @@ rhsm_repos:
 
 # Use RHSM username, password and optionally pool:
 # NOTE: use the -e option to specify on CLI instead of statically set here
-rhsm_username: '<REPLACE WITH VALID RHSM USERNAME>'
-rhsm_password: '<REPLACE WITH VALID RHSM PASSWORD>'
+rhsm_username: "{{ lookup('env','RHSM_USERNAME') }}"
+rhsm_password: "{{ lookup('env','RHSM_PASSWORD') }}"
 
 # leave commented out if you want to `--auto-attach` a pool
 #rhsm_pool: ''
