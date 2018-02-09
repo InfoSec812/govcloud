@@ -19,27 +19,30 @@ while [ "${AWS_AMI}X" == "X" ]; do
     printf "\n\n"
 done
 
-printf "Enter number of master nodes to provision (default 3, 3 or more required for HA): "
-read AWS_MASTER_NODE_INSTANCE_COUNT
-printf "\n\n"
+while [ "${AWS_MASTER_NODE_INSTANCE_COUNT}X" == "X" ]; do
+    printf "Enter number of master nodes to provision (default 3, 3 or more required for HA): "
+    read AWS_MASTER_NODE_INSTANCE_COUNT
+    printf "\n\n"
+done
 
-printf "Enter number of infrastructure nodes to provision (default 3, 3 or more required for HA): "
-read AWS_INFRA_NODE_INSTANCE_COUNT
-printf "\n\n"
+while [ "${AWS_INFRA_NODE_INSTANCE_COUNT}X" == "X" ]; do
+    printf "Enter number of infrastructure nodes to provision (default 3, 3 or more required for HA): "
+    read AWS_INFRA_NODE_INSTANCE_COUNT
+    printf "\n\n"
+done
 
-printf "Enter number of application nodes to provision (default 4): "
-read AWS_APP_NODE_INSTANCE_COUNT
-printf "\n\n"
+while [ "${AWS_APP_NODE_INSTANCE_COUNT}X" == "X" ]; do
+    printf "Enter number of application nodes to provision (default 4): "
+    read AWS_APP_NODE_INSTANCE_COUNT
+    printf "\n\n"
+done
 
-CNS_CONFIG_IS_VALID=0
-until [ ${CNS_CONFIG_IS_VALID} -eq 1 ]; do
-    printf "Enter number of cloud native storage nodes to provision (default 0, 3 or more required to work): "
-    read AWS_CNS_NODE_INSTANCE_COUNT
+isCnsConfigValid () {
     NUM_REGEX='^[0-9]*$'
     if [[ $AWS_CNS_NODE_INSTANCE_COUNT =~ ${NUM_REGEX} ]]; then
         if [[ $AWS_CNS_NODE_INSTANCE_COUNT -eq 0 ]]; then
             CNS_CONFIG_IS_VALID=1
-        else if [[ $AWS_CNS_INSTANCE_COUNT -ge 3 ]]; then
+        elif [[ $AWS_CNS_INSTANCE_COUNT -ge 3 ]]; then
             CNS_CONFIG_IS_VALID=1
         else
             printf "'%s' is not a valid value. Count MUST be == 0 or >= 3" $AWS_CNS_INSTANCE_COUNT
@@ -47,6 +50,14 @@ until [ ${CNS_CONFIG_IS_VALID} -eq 1 ]; do
     else
         printf "'%s' is not a valid value. Value MUST be an integer and >=0" $AWS_CNS_INSTANCE_COUNT
     fi
+}
+
+CNS_CONFIG_IS_VALID=0
+isCndConfigValid()
+until [ ${CNS_CONFIG_IS_VALID} -eq 1 ]; do
+    printf "Enter number of cloud native storage nodes to provision (default 0, 3 or more required to work): ";
+    read AWS_CNS_NODE_INSTANCE_COUNT;
+    isCnsConfigValid
 done
 
 while [ "${AWS_ROUTE53_DOMAIN_NAME}X" == "X" ]; do
@@ -90,5 +101,23 @@ while [ "${OCP_DEPLOY_METRICS}X" == "X" ]; do
     read deployMetricsAnswer
 done
 
-## TODO: Execute Ansible utility container with appropriate env variables
+## Build the environment variables into a variable we can pass with Docker command to run
+## the playbook/roles/inventory
+
+DOCKER_ENV=""
+
+for I in $(set | egrep "^(RH|AWS|OCP).*"); do
+    DOCKER_ENV="${DOCKER_ENV} --env ${I}"
+done
+
+docker run -u `id -u` \
+      -v $HOME/.ssh/id_rsa:/opt/app-root/src/.ssh/id_rsa:Z \
+      -v $HOME/src/:/tmp/src:Z \
+      ${DOCKER_ENV} \
+      -e INVENTORY_DIR=/tmp/src/casl-ansible/inventory/sample.aws.example.com.d/inventory \
+      -e PLAYBOOK_FILE=/tmp/src/casl-ansible/playbooks/openshift/end-to-end.yml \
+      -e OPTS="-e aws_key_name=my-key-name" -t \
+      redhatcop/installer-aws
+
+
 
