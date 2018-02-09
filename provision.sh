@@ -2,6 +2,11 @@
 
 printf "This script will prompt for required settings which are not already set via environment variables.\n\n"
 
+if [ -f environment ]; then
+    printf "Attempting to load configuration from environment file.\n"
+    source environment
+fi
+
 while [ "${OCP_UNIQUE_ENV_ID}X" == "X" ]; do
     printf "Enter the environment ID to be used for provisioning OCP: "
     read OCP_UNIQUE_ENV_ID
