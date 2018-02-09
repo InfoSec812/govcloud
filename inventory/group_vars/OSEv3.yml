@@ -10,8 +10,8 @@ ansible_become: true
 openshift_node_labels: "{{ ec2_tag_node_labels }}"
 
 # CNS relative vars - Uncommented to automatically deploy CNS - 'cns_deploy' from all.yml must be 'true' in that case
-# openshift_storage_glusterfs_namespace: glusterfs
-# openshift_storage_glusterfs_name: cns
+openshift_storage_glusterfs_namespace: glusterfs
+openshift_storage_glusterfs_name: cns
 
 # Uncommented to automatically integrate OCP with AWS so EBS can be used as Dynamic Storage backend
 openshift_cloudprovider_kind: aws
@@ -51,7 +51,7 @@ openshift_hosted_logging_deploy: false
 #openshift_logging_curator_default_days: 1
 
 # Deploy Metrics with dynamic storage
-openshift_hosted_metrics_deploy: false
+openshift_hosted_metrics_deploy: "{{ lookup('env', 'OCP_DEPLOY_METRICS') | default('false') }}"
 #openshift_metrics_install_metrics: true
 #openshift_metrics_cassandra_storage_type: dynamic
 #openshift_metrics_cassandra_pvc_size: 40G
